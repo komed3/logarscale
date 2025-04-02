@@ -14,17 +14,11 @@ module.exports = class LogScale {
     is = false;
     base = 10;
 
-    constructor ( _low, _high, _ticks, _base ) {
+    constructor ( _low, _high, _base ) {
 
         if ( _low && _high ) {
 
             this.setBounds( _low, _high );
-
-        }
-
-        if ( _ticks ) {
-
-            this.setMaxTicks( _ticks );
 
         }
 
@@ -35,6 +29,34 @@ module.exports = class LogScale {
         }
 
     };
+
+    /**
+     * @private
+     * find nearest power
+     * 
+     * @param {Number} number number to find nearest power for
+     * @returns {Number} nearest power
+     */
+    #nearest ( number ) {
+
+        if ( number === 0 ) {
+
+            return 0;
+
+        } else {
+
+            return Math.pow(
+                this.base, Math.ceil(
+                    Math.log( Math.abs( number ) ) /
+                    Math.log( this.base )
+                )
+            ) * (
+                number < 1 ? -1 : 1
+            );
+
+        }
+
+    }
 
     /**
      * set lower / upper bounds
@@ -55,19 +77,6 @@ module.exports = class LogScale {
     };
 
     /**
-     * set maximum number of ticks
-     * 
-     * @param {Number} ticks number of ticks
-     */
-    setMaxTicks ( ticks ) {
-
-        this.maxTicks = parseInt( ticks );
-
-        this.is = false;
-
-    };
-
-    /**
      * set logarithmic base
      * 
      * @param {Number} base logarithmic base
@@ -77,6 +86,73 @@ module.exports = class LogScale {
         this.base = parseFloat( base );
 
         this.is = false;
+
+    };
+
+    /**
+     * calculates scale min / max and step size
+     * 
+     * @returns {Boolean} scale successfully generated
+     */
+    calculate () {
+
+        if ( this.lowerBound && this.upperBound && this.base ) {
+
+            this.min = this.#nearest( this.lowerBound );
+            this.max = this.#nearest( this.upperBound );
+
+            this.range = this.max - this.min;
+
+            this.is = true;
+
+        }
+
+        return this.is;
+
+    };
+
+    /**
+     * get scale range
+     * 
+     * @returns {Number} range
+     */
+    getRange () {
+
+        if ( this.is ) {
+
+            return this.range;
+
+        }
+
+    };
+
+    /**
+     * gets scale maximum
+     * 
+     * @returns {Number} maximum
+     */
+    getMaximum () {
+
+        if ( this.is ) {
+
+            return this.max;
+
+        }
+
+    };
+
+    /**
+     * get scale minimum
+     * 
+     * @returns {Number} minimum
+     */
+    getMinimum () {
+
+        if ( this.is ) {
+
+            return this.min;
+
+        }
 
     };
 
