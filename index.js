@@ -55,9 +55,7 @@ module.exports = class LogScale {
     #nearest ( number ) {
 
         return number === 0 ? 0 : (
-            Math.pow(
-                this.base, Math.ceil( this.#base( number ) )
-            ) * (
+            Math.pow( this.base, Math.ceil( this.#base( number ) ) ) * (
                 number < 1 ? -1 : 1
             )
         );
@@ -207,6 +205,21 @@ module.exports = class LogScale {
                 );
 
             }
+
+        }
+
+    };
+
+    /**
+     * gets scale ticks in reverse order
+     * 
+     * @returns {Number[]} ticks
+     */
+    getTicksReverse () {
+
+        if ( this.is ) {
+
+            return this.getTicks().reverse();
 
         }
 
