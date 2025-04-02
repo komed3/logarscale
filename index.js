@@ -32,6 +32,21 @@ module.exports = class LogScale {
 
     /**
      * @private
+     * calculate logarithmic base
+     * 
+     * @param {Number} number number to calculate base for
+     * @returns {Number} logarithmic base
+     */
+    #base ( number ) {
+
+        return number === 0 ? 0 : (
+            Math.log( Math.abs( parseFloat( number ) ) ) / Math.log( this.base )
+        );
+
+    };
+
+    /**
+     * @private
      * find nearest power
      * 
      * @param {Number} number number to find nearest power for
@@ -39,24 +54,33 @@ module.exports = class LogScale {
      */
     #nearest ( number ) {
 
-        if ( number === 0 ) {
-
-            return 0;
-
-        } else {
-
-            return Math.pow(
-                this.base, Math.ceil(
-                    Math.log( Math.abs( number ) ) /
-                    Math.log( this.base )
-                )
+        return number === 0 ? 0 : (
+            Math.pow(
+                this.base, Math.ceil( this.#base( number ) )
             ) * (
                 number < 1 ? -1 : 1
-            );
+            )
+        );
 
-        }
+    };
 
-    }
+    /**
+     * @private
+     * generates a range of powers
+     * 
+     * @param {Number} start range start
+     * @param {Number} stop range end
+     * @param {Int} sign sign if positive or negative
+     * @returns {Number[]} generated range of powers
+     */
+    #range ( start, stop, sign = 1 ) {
+
+        return Array.from(
+            { length: stop - start + 1 },
+            ( _, i ) => Math.pow( this.base, start + i ) * sign
+        );
+
+    };
 
     /**
      * set lower / upper bounds
@@ -151,6 +175,38 @@ module.exports = class LogScale {
         if ( this.is ) {
 
             return this.min;
+
+        }
+
+    };
+
+    /**
+     * get scale ticks
+     * 
+     * @returns {Number[]} ticks
+     */
+    getTicks () {
+
+        if ( this.is ) {
+
+            let start = Math.ceil( this.#base( this.min ) );
+            let stop = Math.floor( this.#base( this.max ) );
+
+            if ( this.min < 0 && this.max > 0 ) {
+
+                return [
+                    -Math.pow( this.base, start ), 0,
+                    ...this.#range( start, stop )
+                ];
+
+            } else {
+
+                return this.#range(
+                    start, stop,
+                    this.min < 0 ? -1 : 1
+                );
+
+            }
 
         }
 
