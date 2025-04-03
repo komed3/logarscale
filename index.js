@@ -359,11 +359,64 @@ module.exports = class LogScale {
      * @param {String} [from="min"] reference point ( min / max )
      * @returns {Number} percentage
      */
-    pct ( value, from = 'min' ) {
+    pct( value, from = 'min' ) {
 
         if ( this.is ) {
 
-            //
+            value = parseFloat( value );
+
+            let logValue = this.#base( value );
+
+            if ( this.crossesZero() ) {
+
+                let logNeg = Math.abs( this.logMin ),
+                    logPos = this.logMax,
+                    logTotal = logNeg + logPos,
+                    pct;
+
+                if ( value < 0 ) {
+
+                    pct = (
+                        ( logNeg - Math.abs( logValue ) ) / logNeg
+                    ) * (
+                        logNeg / logTotal
+                    ) * 100;
+
+                } else if ( value > 0 ) {
+
+                    pct = (
+                        ( logValue / logPos ) * ( logPos / logTotal ) * 100
+                    ) + (
+                        logNeg / logTotal * 100
+                    );
+
+                } else {
+
+                    pct = logNeg / logTotal * 100;
+
+                }
+
+                return Math.abs( (
+                    from === 'max' ? 100 : 0
+                ) - pct );
+
+            } else {
+
+                let pct = (
+                    logValue - this.logMin
+                ) / (
+                    this.isNegative()
+                        ? this.logMin - this.logMax
+                        : this.logMax - this.logMin
+                );
+
+                return Math.abs( (
+                    from === 'max' ? 100 : 0
+                ) - (
+                    ( this.isNegative() ? 1 - pct - 1 : pct ) * 100
+                ) );
+
+            }
 
         }
 
