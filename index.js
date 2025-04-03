@@ -16,13 +16,13 @@ module.exports = class LogScale {
 
     constructor ( _low, _high, _base ) {
 
-        if ( _low && _high ) {
+        if ( _low !== undefined && _high !== undefined ) {
 
             this.setBounds( _low, _high );
 
         }
 
-        if ( _base ) {
+        if ( _base !== undefined ) {
 
             this.setBase( _base );
 
@@ -114,9 +114,13 @@ module.exports = class LogScale {
      */
     setBase ( base ) {
 
-        this.base = parseFloat( base );
-
         this.is = false;
+
+        if ( ( base = parseFloat( base ) ) > 0 ) {
+
+            this.base = base;
+
+        }
 
     };
 
@@ -127,7 +131,10 @@ module.exports = class LogScale {
      */
     centerAt( value = 0 ) {
 
-        if ( this.lowerBound && this.upperBound ) {
+        if (
+            this.lowerBound !== undefined &&
+            this.upperBound !== undefined
+        ) {
 
             value = parseFloat( value );
 
@@ -152,7 +159,11 @@ module.exports = class LogScale {
      */
     calculate () {
 
-        if ( this.lowerBound && this.upperBound && this.base ) {
+        if (
+            this.lowerBound !== undefined &&
+            this.upperBound !== undefined &&
+            this.base !== undefined
+        ) {
 
             let nearestLower = this.#nearest( this.lowerBound );
             let nearestUpper = this.#nearest( this.upperBound );
