@@ -183,6 +183,12 @@ module.exports = class LogScale {
 
             this.logRange = this.logMax - this.logMin;
 
+            this.negative = (
+                this.min < 0 && this.max <= 0
+            ) || (
+                this.min <= 0 && this.max < 0
+            );
+
             this.is = true;
 
         }
@@ -237,6 +243,21 @@ module.exports = class LogScale {
     };
 
     /**
+     * check if the entire scale is netative
+     * 
+     * @returns {Boolean} scale is negative
+     */
+    isNegative () {
+
+        if ( this.is ) {
+
+            return this.negative;
+
+        }
+
+    };
+
+    /**
      * get scale ticks
      * 
      * @returns {Number[]} ticks
@@ -245,13 +266,11 @@ module.exports = class LogScale {
 
         if ( this.is ) {
 
-            let negative = this.min < 0 && this.max < 0;
-
-            let start = negative
+            let start = this.negative
                 ? Math.ceil( this.logMin )
                 : Math.floor( this.logMin );
 
-            let stop = negative
+            let stop = this.negative
                 ? Math.floor( this.logMax )
                 : Math.ceil( this.logMax );
 
@@ -264,10 +283,11 @@ module.exports = class LogScale {
 
             } else {
 
-                return this.#range(
-                    start, stop,
-                    negative ? -1 : 1
-                );
+                return [
+                    ...( this.min === 0 ? [ 0 ] : [] ),
+                    ...this.#range( start, stop, this.negative ? -1 : 1 ),
+                    ...( this.max === 0 ? [ 0 ] : [] )
+                ];
 
             }
 
