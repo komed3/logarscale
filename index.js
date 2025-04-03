@@ -34,13 +34,13 @@ module.exports = class LogScale {
      * @private
      * calculate logarithmic base
      * 
-     * @param {Number} number number to calculate base for
+     * @param {Number} value value to calculate base for
      * @returns {Number} logarithmic base
      */
-    #base ( number ) {
+    #base ( value ) {
 
-        return number === 0 ? 0 : (
-            Math.log( Math.abs( parseFloat( number ) ) ) / Math.log( this.base )
+        return value === 0 ? 0 : (
+            Math.log( Math.abs( parseFloat( value ) ) ) / Math.log( this.base )
         );
 
     };
@@ -49,16 +49,24 @@ module.exports = class LogScale {
      * @private
      * find nearest power
      * 
-     * @param {Number} number number to find nearest power for
+     * @param {Number} value value to find nearest power for
      * @returns {Number} nearest power
      */
-    #nearest ( number ) {
+    #nearest ( value ) {
 
-        return number === 0 ? 0 : (
-            Math.pow( this.base, Math.ceil( this.#base( number ) ) ) * (
-                number < 1 ? -1 : 1
-            )
-        );
+        if ( value === 0 ) {
+
+            return { lower: 0, upper: 0 };
+
+        }
+
+        let sign = value < 1 ? -1 : 1;
+        let baseValue = this.#base( value );
+
+        return {
+            lower: Math.pow( this.base, Math.floor( baseValue ) ) * sign,
+            upper: Math.pow( this.base, Math.ceil( baseValue ) ) * sign
+        };
 
     };
 
@@ -68,14 +76,14 @@ module.exports = class LogScale {
      * 
      * @param {Number} start range start
      * @param {Number} stop range end
-     * @param {Int} sign sign if positive or negative
+     * @param {Int} [sign=1] sign if positive or negative
      * @returns {Number[]} generated range of powers
      */
     #range ( start, stop, sign = 1 ) {
 
         return Array.from(
-            { length: stop - start + 1 },
-            ( _, i ) => Math.pow( this.base, start + i ) * sign
+            { length: Math.abs( stop - start ) + 1 },
+            ( _, i ) => Math.pow( this.base, start + i * sign ) * sign
         );
 
     };
@@ -120,8 +128,16 @@ module.exports = class LogScale {
 
         if ( this.lowerBound && this.upperBound && this.base ) {
 
-            this.min = this.#nearest( this.lowerBound );
-            this.max = this.#nearest( this.upperBound );
+            let nearestLower = this.#nearest( this.lowerBound );
+            let nearestUpper = this.#nearest( this.upperBound );
+
+            this.min = this.lowerBound < 0
+                ? nearestLower.upper
+                : nearestLower.lower;
+
+            this.max = this.upperBound < 0
+                ? nearestUpper.lower
+                : nearestUpper.upper;
 
             this.range = this.max - this.min;
 
@@ -187,21 +203,28 @@ module.exports = class LogScale {
 
         if ( this.is ) {
 
-            let start = Math.ceil( this.#base( this.min ) );
-            let stop = Math.floor( this.#base( this.max ) );
+            let negative = this.min < 0 && this.max < 0;
+
+            const start = negative
+                ? Math.ceil( this.#base( this.min ) )
+                : Math.floor( this.#base( this.min ) );
+
+            const stop = negative
+                ? Math.floor( this.#base( this.max ) )
+                : Math.ceil( this.#base( this.max ) );
 
             if ( this.min < 0 && this.max > 0 ) {
 
                 return [
-                    -Math.pow( this.base, start ), 0,
-                    ...this.#range( start, stop )
+                    ...this.#range( start, 0, -1 ),
+                    0, ...this.#range( 0, stop )
                 ];
 
             } else {
 
                 return this.#range(
                     start, stop,
-                    this.min < 0 ? -1 : 1
+                    negative ? -1 : 1
                 );
 
             }
