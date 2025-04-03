@@ -61,11 +61,12 @@ module.exports = class LogScale {
         }
 
         let sign = value < 1 ? -1 : 1;
-        let baseValue = this.#base( value );
+
+        value = this.#base( value );
 
         return {
-            lower: Math.pow( this.base, Math.floor( baseValue ) ) * sign,
-            upper: Math.pow( this.base, Math.ceil( baseValue ) ) * sign
+            lower: Math.pow( this.base, Math.floor( value ) ) * sign,
+            upper: Math.pow( this.base, Math.ceil( value ) ) * sign
         };
 
     };
@@ -166,6 +167,11 @@ module.exports = class LogScale {
 
             this.range = this.max - this.min;
 
+            this.logMin = this.#base( this.min );
+            this.logMax = this.#base( this.max );
+
+            this.logRange = this.logMax - this.logMin;
+
             this.is = true;
 
         }
@@ -230,13 +236,13 @@ module.exports = class LogScale {
 
             let negative = this.min < 0 && this.max < 0;
 
-            const start = negative
-                ? Math.ceil( this.#base( this.min ) )
-                : Math.floor( this.#base( this.min ) );
+            let start = negative
+                ? Math.ceil( this.logMin )
+                : Math.floor( this.logMin );
 
-            const stop = negative
-                ? Math.floor( this.#base( this.max ) )
-                : Math.ceil( this.#base( this.max ) );
+            let stop = negative
+                ? Math.floor( this.logMax )
+                : Math.ceil( this.logMax );
 
             if ( this.min < 0 && this.max > 0 ) {
 
@@ -268,6 +274,34 @@ module.exports = class LogScale {
         if ( this.is ) {
 
             return this.getTicks().reverse();
+
+        }
+
+    };
+
+    /**
+     * get percentage of a value within the scale
+     * 
+     * @param {Number} value value to calculate the percentage for
+     * @param {String} [from="min"] reference point ( min / max )
+     * @returns {Number} percentage
+     */
+    pct ( value, from = 'min' ) {
+
+        if ( this.is ) {
+
+            value = this.#base( value );
+
+            switch ( from ) {
+
+                default:
+                case 'min':
+                    return ( ( value - this.logMin ) / this.logRange ) * 100;
+
+                case 'max':
+                    return ( ( this.logMax - value ) / this.logRange ) * 100;
+
+            }
 
         }
 
