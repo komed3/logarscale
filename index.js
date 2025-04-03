@@ -120,6 +120,31 @@ module.exports = class LogScale {
     };
 
     /**
+     * center scale at value
+     * 
+     * @param {Number} [value=0] center value
+     */
+    centerAt( value = 0 ) {
+
+        if ( this.lowerBound && this.upperBound ) {
+
+            value = parseFloat( value );
+
+            let abs = Math.max(
+                Math.abs( value - this.lowerBound ),
+                Math.abs( value - this.upperBound )
+            );
+
+            this.lowerBound = value - abs;
+            this.upperBound = value + abs;
+
+            this.is = false;
+
+        }
+
+    };
+
+    /**
      * calculates scale min / max and step size
      * 
      * @returns {Boolean} scale successfully generated
