@@ -62,11 +62,11 @@ module.exports = class LogScale {
 
         let sign = value < 1 ? -1 : 1;
 
-        value = this.#base( value );
+        let logValue = this.#base( value );
 
         return {
-            lower: Math.pow( this.base, Math.floor( value ) ) * sign,
-            upper: Math.pow( this.base, Math.ceil( value ) ) * sign
+            lower: Math.pow( this.base, Math.floor( logValue ) ) * sign,
+            upper: Math.pow( this.base, Math.ceil( logValue ) ) * sign
         };
 
     };
@@ -260,9 +260,10 @@ module.exports = class LogScale {
     /**
      * get scale ticks
      * 
+     * @param {Boolean} [includeOne=true] include "-1" and "1"
      * @returns {Number[]} ticks
      */
-    getTicks () {
+    getTicks ( includeOne = true ) {
 
         if ( this.is ) {
 
@@ -274,22 +275,28 @@ module.exports = class LogScale {
                 ? Math.floor( this.logMax )
                 : Math.ceil( this.logMax );
 
+            let ticks = [];
+
             if ( this.min < 0 && this.max > 0 ) {
 
-                return [
+                ticks = [
                     ...this.#range( start, 0, -1 ),
                     0, ...this.#range( 0, stop )
                 ];
 
             } else {
 
-                return [
+                ticks = [
                     ...( this.min === 0 ? [ 0 ] : [] ),
                     ...this.#range( start, stop, this.negative ? -1 : 1 ),
                     ...( this.max === 0 ? [ 0 ] : [] )
                 ];
 
             }
+
+            return includeOne ? ticks : ticks.filter(
+                tick => tick !== -1 && tick !== 1
+            );
 
         }
 
@@ -298,13 +305,14 @@ module.exports = class LogScale {
     /**
      * gets scale ticks in reverse order
      * 
+     * @param {Boolean} [includeOne=true] include "-1" and "1"
      * @returns {Number[]} ticks
      */
-    getTicksReverse () {
+    getTicksReverse ( includeOne = true ) {
 
         if ( this.is ) {
 
-            return this.getTicks().reverse();
+            return this.getTicks( includeOne ).reverse();
 
         }
 
@@ -314,25 +322,13 @@ module.exports = class LogScale {
      * get percentage of a value within the scale
      * 
      * @param {Number} value value to calculate the percentage for
-     * @param {String} [from="min"] reference point ( min / max )
      * @returns {Number} percentage
      */
-    pct ( value, from = 'min' ) {
+    pct ( value ) {
 
         if ( this.is ) {
 
-            value = this.#base( value );
-
-            switch ( from ) {
-
-                default:
-                case 'min':
-                    return ( ( value - this.logMin ) / this.logRange ) * 100;
-
-                case 'max':
-                    return ( ( this.logMax - value ) / this.logRange ) * 100;
-
-            }
+            //
 
         }
 
