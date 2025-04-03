@@ -243,7 +243,7 @@ module.exports = class LogScale {
     };
 
     /**
-     * check if the entire scale is netative
+     * check if the entire scale is negative
      * 
      * @returns {Boolean} scale is negative
      */
