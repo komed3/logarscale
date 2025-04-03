@@ -33,7 +33,7 @@ if ( scale.calculate() ) {
     let max = scale.getMaximum();
     // expected: 8
 
-    let ticks = scale.getTicks();
+    let ticks = scale.getTicks( false );
     // expected: [ -2, 0, 2, 4, 6, 8 ]
 
     let pct = scale.pct( -1 );
