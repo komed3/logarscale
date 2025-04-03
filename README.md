@@ -1,6 +1,8 @@
-# logscale
+# LogScale
 
-This lightweight npm package can be used to calculate a simple logarithmic scale between two given values (minimum and maximum) and the base. It handles negative values as well as any positiv logarithmic base.
+This lightweight npm package can be used to calculate a simple logarithmic scale between two given values (minimum and maximum) and the base.
+
+It handles negative values as well as any positiv logarithmic base.
 
 ## Install
 
@@ -29,13 +31,16 @@ if ( scale.calculate() ) {
     // expected: -2
 
     let max = scale.getMaximum();
-    // expected: 7
+    // expected: 8
 
     let ticks = scale.getTicks();
     // expected: [ -2, 0, 2, 4, 6, 8 ]
 
     let pct = scale.pct( -1 );
     // expected: 12.5
+
+    let crossesZero = scale.crossesZero();
+    // expected: true
 
 }
 ```
@@ -45,7 +50,7 @@ if ( scale.calculate() ) {
 Using JavaScript load this package by embed this file via jsDelivr:
 
 ```js
-import LinScale from 'https://cdn.jsdelivr.net/npm/locscale@1.0.0/+esm';
+import LogScale from 'https://cdn.jsdelivr.net/npm/locscale@1.0.0/+esm';
 ```
 
 Remember: To use import you need to load your JavaScript file as ``type="module"``.
@@ -72,6 +77,14 @@ Center scale at the given value (default is zero). Requires to run ``calculate()
 
 Calculates the scale range, minimum, maximum and multiple other things.
 
+### ``isNegative()``
+
+Checks if the entire scale is negative. Returns true if the scale is negative.
+
+### ``crossesZero()``
+
+Checks if the scale crosses zero. Returns true if the scale crosses zero.
+
 ### ``getRange()``
 
 Returns the scale range (from min to max).
@@ -84,15 +97,13 @@ Returns the scale minium value.
 
 Returns the scale maximum value.
 
-### ``isNegative()``
-
-Returns if the entire scale is below zero.
-
-### ``getTicks()``
+### ``getTicks( [ pow0 = true ] )``
 
 Returns an array of the scale ticks (ascending order).
 
-### ``getTicksReverse()``
+If ``pow0 = false``, ticks for ``x^0`` on both sides the scale (negative and positive) will be excluded. This only hits when the scale has positive and negative values (crosses zero).
+
+### ``getTicksReverse( [ pow0 = true ] )``
 
 Returns an array of the scale ticks (descending order).
 
