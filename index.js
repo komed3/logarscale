@@ -396,10 +396,6 @@ module.exports = class LogScale {
 
                 }
 
-                return Math.abs( (
-                    from === 'max' ? 100 : 0
-                ) - pct );
-
             } else {
 
                 let pct = (
@@ -410,13 +406,15 @@ module.exports = class LogScale {
                         : this.logMax - this.logMin
                 );
 
-                return Math.abs( (
-                    from === 'max' ? 100 : 0
-                ) - (
-                    ( this.isNegative() ? 1 - pct - 1 : pct ) * 100
-                ) );
+                pct = 100 * this.isNegative()
+                    ? 1 - pct - 1
+                    : pct;
 
             }
+
+            return Math.abs(
+                ( from === 'max' ? 100 : 0 ) - pct
+            );
 
         }
 
