@@ -2,6 +2,11 @@
  * logscale
  * lightweight npm package to create logarithmic scales
  * 
+ * This lightweight npm package can be used to calculate a simple
+ * logarithmic scale between two given values (minimum and maximum)
+ * and the base. It handles negative values as well as any positiv
+ * logarithmic base.
+ * 
  * @author komed3 (Paul Köhler)
  * @version 1.0.0
  * @license MIT
@@ -11,9 +16,28 @@
 
 module.exports = class LogScale {
 
+    /**
+     * indicates whether the scale has been successfully calculated
+     * 
+     * @type {Boolean}
+     */
     is = false;
+
+    /**
+     * logarithmic base used for calculations
+     * default is "10"
+     * 
+     * @type {Number}
+     */
     base = 10;
 
+    /**
+     * initializes a LogScale instance
+     * 
+     * @param {Number} [_low] lower bound
+     * @param {Number} [_high] upper bound
+     * @param {Number} [_base] logarithmic base
+     */
     constructor ( _low, _high, _base ) {
 
         if ( _low !== undefined && _high !== undefined ) {
@@ -40,7 +64,8 @@ module.exports = class LogScale {
     #base ( value ) {
 
         return value === 0 ? 0 : (
-            Math.log( Math.abs( parseFloat( value ) ) ) / Math.log( this.base )
+            Math.log( Math.abs( parseFloat( value ) ) ) /
+            Math.log( this.base )
         );
 
     };
@@ -56,18 +81,22 @@ module.exports = class LogScale {
 
         if ( value === 0 ) {
 
-            return { lower: 0, upper: 0 };
+            return {
+                lower: 0,
+                upper: 0
+            };
+
+        } else {
+
+            let logValue = this.#base( value );
+            let sign = value < 1 ? -1 : 1;
+
+            return {
+                lower: Math.pow( this.base, Math.floor( logValue ) ) * sign,
+                upper: Math.pow( this.base, Math.ceil( logValue ) ) * sign
+            };
 
         }
-
-        let sign = value < 1 ? -1 : 1;
-
-        let logValue = this.#base( value );
-
-        return {
-            lower: Math.pow( this.base, Math.floor( logValue ) ) * sign,
-            upper: Math.pow( this.base, Math.ceil( logValue ) ) * sign
-        };
 
     };
 
@@ -77,7 +106,7 @@ module.exports = class LogScale {
      * 
      * @param {Number} start range start
      * @param {Number} stop range end
-     * @param {Int} [sign=1] sign if positive or negative
+     * @param {Int} [sign=1] sign (positive or negative)
      * @returns {Number[]} generated range of powers
      */
     #range ( start, stop, sign = 1 ) {
@@ -114,13 +143,13 @@ module.exports = class LogScale {
      */
     setBase ( base ) {
 
-        this.is = false;
-
         if ( ( base = parseFloat( base ) ) > 0 ) {
 
             this.base = base;
 
         }
+
+        this.is = false;
 
     };
 
@@ -183,17 +212,41 @@ module.exports = class LogScale {
 
             this.logRange = this.logMax - this.logMin;
 
-            this.negative = (
-                this.min < 0 && this.max <= 0
-            ) || (
-                this.min <= 0 && this.max < 0
-            );
-
             this.is = true;
 
         }
 
         return this.is;
+
+    };
+
+    /**
+     * checks if the entire scale is negative
+     * 
+     * @returns {Boolean} true if the scale is negative
+     */
+    isNegative () {
+
+        if ( this.is ) {
+
+            return this.max <= 0;
+
+        }
+
+    };
+
+    /**
+     * checks if the scale crosses zero
+     * 
+     * @returns {Boolean} true if the scale crosses zero
+     */
+    crossesZero () {
+
+        if ( this.is ) {
+
+            return this.min < 0 && this.max > 0;
+
+        }
 
     };
 
@@ -243,60 +296,41 @@ module.exports = class LogScale {
     };
 
     /**
-     * check if the entire scale is negative
-     * 
-     * @returns {Boolean} scale is negative
-     */
-    isNegative () {
-
-        if ( this.is ) {
-
-            return this.negative;
-
-        }
-
-    };
-
-    /**
      * get scale ticks
      * 
-     * @param {Boolean} [includeOne=true] include "-1" and "1"
+     * @param {Boolean} [pow0=true] include x^0
      * @returns {Number[]} ticks
      */
-    getTicks ( includeOne = true ) {
+    getTicks ( pow0 = true ) {
 
         if ( this.is ) {
 
-            let start = this.negative
+            let start = this.isNegative()
                 ? Math.ceil( this.logMin )
                 : Math.floor( this.logMin );
 
-            let stop = this.negative
+            let stop = this.isNegative()
                 ? Math.floor( this.logMax )
                 : Math.ceil( this.logMax );
 
             let ticks = [];
 
-            if ( this.min < 0 && this.max > 0 ) {
+            if ( this.crossesZero() ) {
 
-                ticks = [
-                    ...this.#range( start, 0, -1 ),
-                    0, ...this.#range( 0, stop )
+                return [
+                    ...this.#range( start, +!pow0, -1 ),
+                    0, ...this.#range( +!pow0, stop )
                 ];
 
             } else {
 
-                ticks = [
+                return [
                     ...( this.min === 0 ? [ 0 ] : [] ),
-                    ...this.#range( start, stop, this.negative ? -1 : 1 ),
+                    ...this.#range( start, stop, this.isNegative() ? -1 : 1 ),
                     ...( this.max === 0 ? [ 0 ] : [] )
                 ];
 
             }
-
-            return includeOne ? ticks : ticks.filter(
-                tick => tick !== -1 && tick !== 1
-            );
 
         }
 
@@ -305,14 +339,14 @@ module.exports = class LogScale {
     /**
      * gets scale ticks in reverse order
      * 
-     * @param {Boolean} [includeOne=true] include "-1" and "1"
+     * @param {Boolean} [pow0=true] include x^0
      * @returns {Number[]} ticks
      */
-    getTicksReverse ( includeOne = true ) {
+    getTicksReverse ( pow0 = true ) {
 
         if ( this.is ) {
 
-            return this.getTicks( includeOne ).reverse();
+            return this.getTicks( pow0 ).reverse();
 
         }
 
@@ -322,9 +356,10 @@ module.exports = class LogScale {
      * get percentage of a value within the scale
      * 
      * @param {Number} value value to calculate the percentage for
+     * @param {String} [from="min"] reference point ( min / max )
      * @returns {Number} percentage
      */
-    pct ( value ) {
+    pct ( value, from = 'min' ) {
 
         if ( this.is ) {
 
