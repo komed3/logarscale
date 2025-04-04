@@ -1,4 +1,4 @@
-# LogScale
+# LogarScale
 
 This lightweight npm package can be used to calculate a simple logarithmic scale between two given values (minimum and maximum) and the base.
 
@@ -9,7 +9,7 @@ It handles negative values as well as any positiv logarithmic base.
 Using Node.js, install the package with the following shell command:
 
 ```sh
-npm install logscale
+npm install logarscale
 ```
 
 ## Usage
@@ -17,13 +17,13 @@ npm install logscale
 Load the package into your project:
 
 ```js
-const LogScale = require( 'logscale' );
+const LogarScale = require( 'logarscale' );
 ```
 
 Sample of how to use the package in your code:
 
 ```js
-let scale = new LogScale( -1.341, 6.5, 2 );
+let scale = new LogarScale( -1.341, 6.5, 2 );
 
 if ( scale.calculate() ) {
 
@@ -34,10 +34,10 @@ if ( scale.calculate() ) {
     // expected: 8
 
     let ticks = scale.getTicks( false );
-    // expected: [ -2, 0, 2, 4, 6, 8 ]
+    // expected: [ -2, 0, 2, 4, 8 ]
 
-    let pct = scale.pct( -1 );
-    // expected: 12.5
+    let pct = scale.pct( 2 );
+    // expected: 50
 
     let crossesZero = scale.crossesZero();
     // expected: true
@@ -50,16 +50,16 @@ if ( scale.calculate() ) {
 Using JavaScript load this package by embed this file via jsDelivr:
 
 ```js
-import LogScale from 'https://cdn.jsdelivr.net/npm/locscale@1.0.0/+esm';
+import LogarScale from 'https://cdn.jsdelivr.net/npm/logarscale@1.0.0/+esm';
 ```
 
 Remember: To use import you need to load your JavaScript file as ``type="module"``.
 
 ## API
 
-Here you can find all methods available in the ``LogScale`` class.
+Here you can find all methods available in the ``LogarScale`` class.
 
-Creating a new instance of ``LogScale`` allows to pass the bounds and logarithmic base. This replaces methods ``setBounds`` and ``setBase``. You still need to run ``calculate()``.
+Creating a new instance of ``LogarScale`` allows to pass the bounds and logarithmic base. This replaces methods ``setBounds`` and ``setBase``. You still need to run ``calculate()``.
 
 ### ``setBounds( min, max )``
 

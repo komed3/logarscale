@@ -1,5 +1,5 @@
 /**
- * logscale
+ * LogarScale
  * lightweight npm package to create logarithmic scales
  * 
  * This lightweight npm package can be used to calculate a simple
@@ -14,7 +14,7 @@
 
 'use strict';
 
-module.exports = class LogScale {
+module.exports = class LogarScale {
 
     /**
      * indicates whether the scale has been successfully calculated
@@ -32,7 +32,7 @@ module.exports = class LogScale {
     base = 10;
 
     /**
-     * initializes a LogScale instance
+     * initializes a LogarScale instance
      * 
      * @param {Number} [_low] lower bound
      * @param {Number} [_high] upper bound

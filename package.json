@@ -1,12 +1,12 @@
 {
-  "name": "logscale",
+  "name": "logarscale",
   "description": "lightweight npm package to create logarithmic scales",
   "author": {
     "name" : "komed3 (Paul Köhler)",
     "email" : "webmaster@komed3.de",
     "url" : "https://komed3.de"
   },
-  "homepage": "https://github.com/komed3/logscale#readme",
+  "homepage": "https://github.com/komed3/logarscale#readme",
   "version": "1.0.0",
   "license": "MIT",
   "keywords": [
@@ -16,9 +16,9 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/komed3/logscale.git"
+    "url": "git+https://github.com/komed3/logarscale.git"
   },
   "bugs": {
-    "url": "https://github.com/komed3/logscale/issues"
+    "url": "https://github.com/komed3/logarscale/issues"
   }
 }
