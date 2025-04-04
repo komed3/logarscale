@@ -365,14 +365,14 @@ module.exports = class LogScale {
 
             value = parseFloat( value );
 
-            let logValue = this.#base( value );
+            let logValue = this.#base( value ),
+                pct;
 
             if ( this.crossesZero() ) {
 
                 let logNeg = Math.abs( this.logMin ),
                     logPos = this.logMax,
-                    logTotal = logNeg + logPos,
-                    pct;
+                    logTotal = logNeg + logPos;
 
                 if ( value < 0 ) {
 
@@ -398,7 +398,7 @@ module.exports = class LogScale {
 
             } else {
 
-                let pct = (
+                pct = (
                     logValue - this.logMin
                 ) / (
                     this.isNegative()
